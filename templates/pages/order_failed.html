@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Payment {% endblock %}
+{% block content %}
+  <!-- [ Main Content ] start -->
+
+<div class="pc-container">
+    <div class="pc-content">
+        <div class="row">
+            <div class="col-xl-8 col-md-8 mx-auto">
+                <div class="card shadow-lg" style="border: none; max-width: 600px; margin: 0 auto; border-radius: 15px;">
+                    <div class="card-body" style="padding: 30px; display: flex; flex-direction: column; align-items: center;">
+                        <div class="row align-items-center" style="width: 100%; justify-content: center;">
+                            <!-- Success Image (on the left) -->
+                            <div class="col d-flex align-items-center justify-content-center" style="text-align: center;">
+                                <img id="failgif" src="{% static 'newicons/fail.gif' %}" alt="Success" style="width: 130px; height: 130px; margin-bottom: 20px;">
+
+                            </div>
+                        </div>
+                        <!-- Order Details Section -->
+                        <h5 class="mb-0" style="font-size: clamp(1rem, 3vw, 1.75rem); font-weight: bold; color: red;">Oops Order Failed!</h5>
+
+                        <a href="{% url 'order' %}" class="btn btn-primary" style="margin-top: 20px; padding: 10px 20px; font-size: 1rem; border-radius: 5px; text-align: center;">Retry</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

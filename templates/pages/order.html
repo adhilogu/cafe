@@ -1,0 +1,585 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Order {% endblock %}
+{% block content %}
+  <!-- [ Main Content ] start -->
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+</head>
+
+  <div class="pc-container">
+    <div class="pc-content">
+      <div class="row">
+
+
+
+
+        <!-- Sample card with some data -->
+          <div class="col-xl-4 col-md-6">
+            <div class="card shadow-lg border-0" id="input-section"
+                style="background-color: #fcf3d1; padding: 2px; border-radius: 10px;">
+                <div class="card-body p-2 d-flex flex-column align-items-center">
+                    <!-- Search Form -->
+                    <form id="search-form" method="get" autocomplete="off" class="d-flex align-items-center w-100 mb-2">
+                    {% csrf_token %}
+
+                    <!-- Search Input Field -->
+                    <input
+                        type="search"
+                        id="search-input"
+                        name="search"
+                        placeholder="Search Dish..."
+                        style="font-size: 1rem; font-weight: bold; padding: 8px; background-color: #fcf3d1; color: black; border: none; outline: none; width: 85%; margin-right: 10px;"
+                        value="{{ search_term }}"
+                        oninput="debounce(applyFilters, 300)"
+                    />
+
+                    <!-- Search Button -->
+                    <button
+                        type="button"
+                        class="btn"
+
+                        style="background-color: #fcf3d1; color: #f7c64b; border: none; border-radius: 8px; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center;">
+                        <i class="fa fa-search" aria-hidden="true" style="font-size: 1.5rem; color: #ffb700;"></i>
+                    </button>
+                        <i class="bi bi-filter-circle-fill ms-2"
+                            style="font-size: 1.5rem; color: #ffb700; cursor: pointer;padding-right: 8px;"
+                            id="filter-icon"
+                            onclick="toggleDropdown()"></i>
+                </form>
+
+                    <!-- filter Dropdown -->
+                   <!-- Filter Dropdown (Notification dropdown) -->
+                        <div class="dropdown pc-h-dropdown" id="notification-dropdown"
+                             style="background-color: #f7c64b; border-radius: 8px; box-shadow: 0px 5px 15px rgba(0,0,0,0.2); width: 100%; padding: 15px; color: white; display: none;">
+                            <div class="dropdown-header">
+                                <h5 class="mb-2">Filter Options</h5>
+                            </div>
+
+                            <!-- Flex Container for Filters -->
+                            <div class="d-flex justify-content-between align-items-center" style="gap: 15px;">
+                                <!-- Veg Filter -->
+                                <div class="list-group-item flex-grow-1" style="color: white;">
+                                    <label for="veg-filter" class="form-label mb-1 fw-bold">Veg Options</label>
+                                    <select class="form-select" id="veg-filter" name="veg_option">
+                                        <option value="all" {% if selected_veg_option == 'all' %}selected{% endif %}>All</option>
+                                        <option value="veg" {% if selected_veg_option == 'veg' %}selected{% endif %}>Veg</option>
+                                        <option value="nonveg" {% if selected_veg_option == 'nonveg' %}selected{% endif %}>Non-veg</option>
+                                    </select>
+                                </div>
+
+                                <!-- Category Filter -->
+                                <div class="category-filter">
+                                    <label for="category-filter" class="form-label mb-1 fw-bold">Category</label>
+                                    <select class="form-select" id="category-filter" name="category">
+                                        <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All</option>
+                                        {% for category_value, category_label in category_choices %}
+                                            <option value="{{ category_value }}" {% if selected_category == category_value %}selected{% endif %}>{{ category_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Centered Button Row -->
+                            <div class="d-flex justify-content-center mt-3">
+                                <button id="apply-changes-btn" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 8px;" onclick="applyFilters()">
+                                    Apply Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dish Count Display -->
+
+
+
+
+
+
+
+
+        <!-- More cards or sections as required -->
+      <div id="dishes-container">
+            {% include 'pages/filtered_dishes.html' %}
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- More rows or content #6a1b9a   #613cb0 -->
+      </div>
+   </div>
+
+<a class="btn btn-primary"
+   style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; align-items: center; background-color:#613cb0 ; border-radius: 50px; padding: 10px 20px; box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2); width: auto; min-width: 200px;"
+   id="go-to-cart-btn">
+    <i class="ti ti-shopping-cart" style="font-size: 1.5rem; color: white;"></i>
+    <span style="font-size: 1rem; color: white; margin: 0 10px; flex-grow: 1; text-align: center;">Go to Cart</span>
+    <span id="cart-item-count" style="background-color: red; color: white; font-size: 0.9rem; font-weight: bold; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; display: inline-block;">
+        {{ cart_items|length }}
+    </span>
+</a>
+
+
+
+
+<style>
+
+
+    .btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 30px; /* Rounded corners */
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for pop */
+    font-size: 0.85rem; /* Slightly smaller font for compact design */
+
+}
+
+.btn-primary:hover {
+    background-color: #007bff;
+    transform: translateY(-2px); /* Lift effect */
+}
+
+.position-absolute {
+    z-index: 1;
+    transform: translateY(10%);
+}
+
+
+
+
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dropdown = document.querySelector('.dropdown');
+    const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+    const closeCartButtons = document.querySelectorAll('.close-cart-btn');
+    const goToCartButton = document.querySelector('#go-to-cart-btn');
+    const blurBackgroundClass = 'blurred-bg';
+
+    // Add blur when cart is opened
+    function addBlur() {
+        document.body.classList.add(blurBackgroundClass);
+    }
+
+    // Remove blur when cart is closed
+    function removeBlur() {
+        document.body.classList.remove(blurBackgroundClass);
+    }
+
+    // Toggle dropdown and blur when "Go to Cart" button is clicked
+    goToCartButton.addEventListener('click', function () {
+        if (dropdownMenu.classList.contains('show')) {
+            dropdownMenu.classList.remove('show');
+            removeBlur();
+        } else {
+            dropdownMenu.classList.add('show');
+            addBlur();
+        }
+    });
+
+    // Close cart dropdown and remove blur when "Close Cart" button is clicked
+    closeCartButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            dropdownMenu.classList.remove('show');
+            removeBlur();
+        });
+    });
+
+    // Handle clicks outside the dropdown to close it and remove blur
+    document.addEventListener('click', function (event) {
+        if (!dropdown.contains(event.target) && !goToCartButton.contains(event.target)) {
+            dropdownMenu.classList.remove('show');
+            removeBlur();
+        }
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    var goToCartBtn = document.getElementById("go-to-cart-btn");
+
+    // Ensure the button click triggers both scroll and dropdown toggle
+    goToCartBtn.addEventListener("click", function(event) {
+        event.preventDefault();  // Prevent default action
+
+        // Scroll to cart section (if present in the page)
+        var cartSection = document.querySelector("#cart-section");
+        if (cartSection) {
+            cartSection.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Close any other open dropdowns (if any)
+        var openDropdowns = document.querySelectorAll('.dropdown.show');
+        openDropdowns.forEach(function(dropdown) {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+                var toggle = dropdown.previousElementSibling;
+                if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        // Toggle the cart dropdown manually
+        var cartDropdownToggle = document.querySelector(".pc-head-link[data-bs-toggle='dropdown']");
+        if (cartDropdownToggle) {
+            // Check the current state of the dropdown (expanded or collapsed)
+            var isExpanded = cartDropdownToggle.getAttribute('aria-expanded') === 'true';
+            var dropdownMenu = cartDropdownToggle.nextElementSibling; // The dropdown menu
+
+            if (isExpanded) {
+                // If the dropdown is already open, close it
+                cartDropdownToggle.setAttribute('aria-expanded', 'false');
+                dropdownMenu.classList.remove('show');
+            } else {
+                // If the dropdown is closed, open it
+                cartDropdownToggle.setAttribute('aria-expanded', 'true');
+                dropdownMenu.classList.add('show');
+            }
+        }
+    });
+});
+
+
+
+
+
+    // Get the filter icon and notification dropdown
+var filterIcon = document.getElementById("filter-icon");
+var notificationDropdown = document.getElementById("notification-dropdown");
+
+// Toggle dropdown visibility when the filter icon is clicked
+filterIcon.addEventListener("click", function() {
+    if (notificationDropdown.style.display === "none" || notificationDropdown.style.display === "") {
+        notificationDropdown.style.display = "block";
+    } else {
+        notificationDropdown.style.display = "none";
+    }
+});
+
+
+
+
+
+
+
+
+
+// Add Item to Cart
+function addToCart(dishId) {
+    // Locate the dish card in the DOM
+    const dishCard = document.querySelector(`#dish-add-${dishId}`)?.closest('.dish-card');
+
+    if (!dishCard) {
+        console.error(`Dish card for dish ID ${dishId} not found.`);
+        return;
+    }
+
+    // Extract dish details (name, price, and image)
+    const name = dishCard.querySelector('.card-title')?.textContent.trim() || 'Unknown Dish';
+    const priceText = dishCard.querySelector('.text-primary')?.textContent.trim();
+    const price = priceText ? parseFloat(priceText.replace('₹', '')) : 0;  // Ensure valid price extraction
+    const image = dishCard.querySelector('.img-fluid')?.src;  // Specifically target the dish photo with the `img-fluid` class
+
+    // Validate all necessary details
+    if (!image) {
+        console.error(`No image found for dish ID ${dishId}`);
+        return; // Don't add to cart if no image is found
+    }
+    if (price <= 0) {
+        console.error(`Invalid price for dish ID ${dishId}`);
+        return; // Don't add to cart if price is invalid
+    }
+
+    // Add to cart or update quantity
+    if (!cart[dishId]) {
+        cart[dishId] = { name, price, quantity: 1, image };
+    } else {
+        cart[dishId].quantity += 1; // Increase quantity if already in cart
+    }
+
+    // Update the quantity display and UI
+    updateCount(dishId, 1);
+    updateCartUI();
+    updateCartCount();
+
+}
+
+
+// Rest of the functions remain the same
+function updateQuantity(dishId, delta) {
+    if (cart[dishId]) {
+        cart[dishId].quantity += delta;
+        if (cart[dishId].quantity <= 0) {
+            delete cart[dishId];
+        }
+    }
+
+    updateCount(dishId, delta);
+    updateCartUI();
+    updateCartCount();
+    checkEmptyCart();
+}
+
+function removeFromCart(dishId) {
+    delete cart[dishId];
+    updateCount(dishId, -Infinity); // Reset count
+    updateCartUI();
+    updateCartCount();
+    checkEmptyCart();
+}
+
+function updateCount(dishId, delta) {
+    const dishDiv = document.getElementById(`dish-add-${dishId}`);
+    let countSpan = dishDiv.querySelector('span');
+
+    if (!countSpan) {
+        if (delta > 0) {
+            dishDiv.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center" style="gap: 5px; width: 100px; background-color: #e0bbff; border-radius: 10px;">
+                    <button class="btn btn-sm p-0" style="color: #6a1b9a; font-size: 1.8rem; width: 28px; height: 24px; line-height: 1;" onclick="updateQuantity(${dishId}, -1)">-</button>
+                    <span id="dish-count-${dishId}" style="font-size: 1.4rem; font-weight: bold; color: black;">1</span>
+                    <button class="btn btn-sm p-0" style="color: #6a1b9a; font-size: 1.8rem; width: 28px; height: 24px; line-height: 1;" onclick="updateQuantity(${dishId}, 1)">+</button>
+                </div>
+            `;
+        }
+    } else {
+        let currentCount = parseInt(countSpan.textContent);
+        const newCount = currentCount + delta;
+
+        if (newCount <= 0) {
+            dishDiv.innerHTML = `
+                <button class="btn btn-primary btn-sm rounded-pill px-4 py-2"
+                    onclick="addToCart(${dishId})"
+                    style="font-size: 0.9rem; width: auto;">
+                    Add
+                </button>
+            `;
+        } else {
+            countSpan.textContent = newCount;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
+
+function updateCartCount() {
+    const cartCount = document.getElementById('cart-item-count');
+    const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+    cartCount.textContent = totalItems;
+
+    // Hide count if zero
+    cartCount.style.display = totalItems > 0 ? 'inline-block' : 'none';
+}
+
+
+
+
+
+
+let debounceTimeout;
+
+function debounce(func, delay) {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(func, delay);
+}
+
+// Initialize event listeners when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing event listeners');
+
+    // Add event listener for search input
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            e.preventDefault();
+            debounce(() => applyFilters(), 300);
+        });
+        console.log('Search input listener added');
+    }
+
+    // Add event listener for veg filter
+    const vegFilter = document.getElementById('veg-filter');
+    if (vegFilter) {
+        vegFilter.addEventListener('change', applyFilters);
+        console.log('Veg filter listener added');
+    }
+
+    // Add event listener for category filter
+    const categoryFilter = document.getElementById('category-filter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', applyFilters);
+        console.log('Category filter listener added');
+    }
+
+    // Add event listener for search button
+    const searchButton = document.querySelector('button.btn i.fa.fa-search').closest('button');
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            applyFilters();
+        });
+        console.log('Search button listener added');
+    }
+
+    // Load saved filters
+    loadFilters();
+});
+
+
+function updateDishCount() {
+    const dishCountElement = document.getElementById('dish-count');
+    const dishes = document.querySelectorAll('.dish-item'); // Assuming each dish has a class 'dish-item'
+    const dishCount = dishes.length;
+
+    // Update the text content of the dish count element
+    dishCountElement.textContent = `Showing ${dishCount} dish${dishCount !== 1 ? 'es' : ''}`;
+}
+
+
+
+
+async function applyFilters() {
+    console.log('Applying filters...');
+
+    const searchInput = document.getElementById('search-input').value;
+    const vegOption = document.getElementById('veg-filter').value;
+    const category = document.getElementById('category-filter').value;
+
+    console.log('Filter values:', { searchInput, vegOption, category });
+
+    // Save filter values to localStorage
+    localStorage.setItem('search', searchInput);
+    localStorage.setItem('veg_option', vegOption);
+    localStorage.setItem('category', category);
+
+    // Create query parameters
+    const queryParams = new URLSearchParams();
+    if (searchInput) queryParams.set('search', searchInput);
+    if (vegOption !== 'all') queryParams.set('veg_option', vegOption);
+    if (category !== 'all') queryParams.set('category', category);
+
+    // Get the current URL path
+    const currentPath = window.location.pathname;
+    const requestUrl = `${currentPath}?${queryParams.toString()}`;
+    console.log('Request URL:', requestUrl);
+
+    try {
+        // Show loading state
+        const dishesContainer = document.getElementById('dishes-container');
+        dishesContainer.innerHTML = '<div class="text-center py-4">Loading...</div>';
+
+        // Fetch filtered data
+        console.log('Sending AJAX request...');
+        const response = await fetch(requestUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
+            },
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const html = await response.text();
+        console.log('Received HTML response');
+
+        // Update the container with the new HTML
+        dishesContainer.innerHTML = html;
+
+        // Check if the dishes are rendered correctly (debugging)
+        const dishItems = document.querySelectorAll('.dish-item'); // Make sure this matches your actual structure
+        console.log('Number of dish items:', dishItems.length);  // Debug log
+
+        // Update the dish count
+        const dishCountElement = document.getElementById('dish-count');
+        if (dishCountElement) {
+            console.log('Updating dish count...');
+
+        } else {
+            console.error('Dish count element not found!');
+        }
+
+        // Update URL without page reload
+        window.history.replaceState({}, '', requestUrl);
+
+    } catch (error) {
+        console.error('Error details:', error);
+        const dishesContainer = document.getElementById('dishes-container');
+        dishesContainer.innerHTML = `
+            <div class="text-center py-4 text-danger">
+                Error loading data. Please try again.<br>
+                <small>${error.message}</small>
+            </div>`;
+    }
+}
+
+
+
+
+
+
+
+function loadFilters() {
+    console.log('Loading saved filters...');
+
+    const savedSearchTerm = localStorage.getItem('search');
+    const savedVegOption = localStorage.getItem('veg_option');
+    const savedCategory = localStorage.getItem('category');
+
+    console.log('Saved filters:', { savedSearchTerm, savedVegOption, savedCategory });
+
+    if (savedSearchTerm) {
+        document.getElementById('search-input').value = savedSearchTerm;
+    }
+    if (savedVegOption) {
+        document.getElementById('veg-filter').value = savedVegOption;
+    }
+    if (savedCategory) {
+        document.getElementById('category-filter').value = savedCategory;
+    }
+
+    // Only apply filters if there are saved values and they're not the defaults
+    if (savedSearchTerm || (savedVegOption && savedVegOption !== 'all') || (savedCategory && savedCategory !== 'all')) {
+        applyFilters();
+    }
+}
+
+
+
+</script>
+
+{% endblock %}
+
+
+{% block extra_js %}
+  <!-- Apex Chart-->
+  <script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/dashboard-default.js' %}"></script>
+{% endblock %}

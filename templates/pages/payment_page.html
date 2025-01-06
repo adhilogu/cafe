@@ -1,0 +1,246 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Payment {% endblock %}
+{% block content %}
+  <!-- [ Main Content ] start -->
+
+ <div class="pc-container">
+    <div class="pc-content">
+      <div class="row">
+
+
+
+  <div class="col-xl-8 col-md-8 mx-auto">
+  <div class="card" style=" border: none; max-width: 600px; margin: 0 auto;">
+    <div class="card-body">
+      <div class="row align-items-center" style="flex-wrap: nowrap;">
+          <!-- Payment Text with Icon (Aligned Left) -->
+          <div class="col d-flex align-items-center justify-content-start" style="min-width: 150px;">
+            <img src="{% static 'newicons/pay.png' %}" alt="Payment Icon"
+                 style="width: 40px; height: 40px; margin-right: 10px; margin-left: 15px;">
+            <h5 class="mb-0" style="font-size: clamp(1rem, 2vw, 1.75rem); font-weight: bold;">PAYMENT</h5>
+          </div>
+
+          <!-- Green Card with Total -->
+          <div class="col-auto d-flex align-items-center justify-content-end" style="min-width: 150px;padding-top:10px;">
+            <div class="card"
+                 style="background-color: #28a745; border: none; height: 40px; display: flex;
+                        align-items: center; justify-content: center; margin-top: 10px; min-width: 120px; max-width: 250px;">
+              <div class="card-body text-center" style="font-weight: bold; color: white;">
+                <h5 class="card-title mb-0" style="font-size: clamp(1rem, 2vw, 1.4rem); font-weight: bold;">
+                  Total: ₹ {{ total_bill }}
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      <!-- Two Cards -->
+      <div class="row align-items-center mt-3">
+          <!-- Heading -->
+
+        <!-- Card Heading -->
+      <div class="col-12 text-center">
+        <h2 style="font-weight: bold;  margin-bottom: 10px;">Order Details</h2>
+      </div>
+
+        <div class="col-12">
+
+          <div class="card" style="background-color: #cce5ff; border: none; max-width: 500px; margin: 0 auto;">
+            <div class="card-body" style="padding-left: 15px;">
+              <!-- Two Columns Inside the Card -->
+              <div class="row align-items-center" style="display: flex; flex-wrap: nowrap; justify-content: space-between;">
+
+                <div class="col-5" style="text-align: centre; min-width: 100px; max-width: 150px;">
+                  <h4 style="font-size: 0.8rem; color: black; font-weight: 700; margin: 0; line-height: 1.5; padding-left: 20px;">Recipient</h4>
+                </div>
+
+                <!-- Center Line -->
+                <div class="col-1"
+                     style="display: flex; justify-content: center; min-width: 20px; max-width: 30px; margin-left: -30px;">
+                  <div style="border-left: 2px solid black; height: 40px;"></div>
+                </div>
+
+
+                <!-- Right Column (Name and Phone) -->
+                <div class="col-6" style="text-align: center; min-width: 150px; max-width: 200px;">
+                  <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
+                    <i class="bi bi-person-square" style="font-size: 1rem; margin-right: 5px; color: black;"></i>
+                    <span style="font-weight: 700; color: black;">{{ request.user.first_name }}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-telephone" style="font-size: 1rem; margin-right: 5px; color: black;"></i>
+                    <span style="font-weight: 700; color: black;">{{ request.user.userprofile.phone_number|default:"Not Provided" }}</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+          <div class="col-12">
+            <div class="card" style="background-color: #f8f9fa; border: none; max-width: 500px; margin: 10px auto;">
+                <div class="card-body" style="padding: 15px;">
+                    <div style="color: black; text-align: left; font-weight: 700; margin-bottom: 10px;">
+                        Items: {{ total_quantity }}
+                    </div>
+                    {% for item in items %}
+                    <div style="color: black; border-bottom: 1px solid #dee2e6; padding: 8px 0; display: flex; justify-content: space-between;">
+                        <div style="flex: 2;">{{ item.name }}</div>
+                        <div style="flex: 1; text-align: center;">Qty: {{ item.quantity }}</div>
+                        <div style="flex: 1; text-align: right;">₹{{ item.total_price }}</div>
+                    </div>
+                    {% endfor %}
+                    <!-- Total Section -->
+                    <div style="color: black; background-color: #e9ecef; border-radius: 5px; padding: 10px; margin-top: 10px; text-align: right; font-weight: bold;">
+                        <span style="margin-right: 10px;" >Total:</span> ₹{{ total_bill }}
+                    </div>
+                </div>
+            </div>
+
+
+
+             <!-- Payment Section -->
+            <div class="list-group-item flex-grow-1" style="max-width: 500px; margin: 15px auto;">
+
+                <select class="form-select" id="ordertype" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                   <option value="">Select Delivery</option>
+                   <option value="dinein">Dine In</option>
+                   <option value="parcel">Parcel</option>
+                </select>
+
+
+                <div id="upiInput" style="display: none; margin-bottom: 10px;">
+               <input type="text" id="upiId" placeholder="Enter UPI ID" style="width: 100%; padding: 8px; margin-bottom: 5px;">
+               <div style="color: #666; font-size: 0.8rem;">Format: username@bank</div>
+             </div>
+
+
+             <button id="razorpay-button" style="width: 100%; padding: 10px; background-color: #6c757d; color: white; border: none; border-radius: 4px;">
+              Pay
+            </button>
+
+             <div id="codNote" style="display: none; margin-top: 10px; color: #666; font-size: 0.9rem;">
+               Note: Food preparation will start once after the payment is done at the counter
+             </div>
+            </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+   </div>
+ </div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+
+
+   // Razorpay Options
+const razorpayOptions = {
+  "key": "{{ razorpay_key_id }}",
+  "amount": "{{ total_bill }}",
+  "currency": "{{ currency }}",
+  "name": "TECH SAGA",
+  "description": "Order Payment",
+  "image": "{% static 'newicons/logots.png' %}",
+  "order_id": "{{ razorpay_order_id }}",
+  "handler": function(response) {
+    fetch("{% url 'verify_payment' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+        delivery_type: document.getElementById('ordertype').value
+      }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = "{% url 'order_success' %}";
+      } else {
+        window.location.href = "{% url 'order_failed' %}";
+
+      }
+    });
+  },
+  "theme": {
+    "color": "#28a745",
+  },
+};
+
+// Initialize Razorpay
+const rzp = new Razorpay(razorpayOptions);
+
+// Function to check if there are items in the order
+function hasItems() {
+  const itemElements = document.querySelectorAll('[style*="border-bottom: 1px solid #dee2e6"]');
+  return itemElements.length > 0;
+}
+
+// Function to handle payment button state
+function handlePaymentChange() {
+  const deliverySelect = document.getElementById('ordertype');
+  const payButton = document.getElementById('razorpay-button');
+
+  // Check if delivery type is selected and items exist
+  const isDeliveryValid = ['dinein', 'parcel'].includes(deliverySelect.value);
+  const itemsExist = hasItems();
+
+  if (isDeliveryValid && itemsExist) {
+    payButton.style.backgroundColor = '#28a745';
+    payButton.style.cursor = 'pointer';
+    payButton.disabled = false;
+  } else {
+    payButton.style.backgroundColor = '#6c757d';
+    payButton.style.cursor = 'not-allowed';
+    payButton.disabled = true;
+  }
+}
+
+// Event listener for the pay button
+document.getElementById("razorpay-button").onclick = function(e) {
+  e.preventDefault();
+
+  const deliverySelect = document.getElementById('ordertype');
+  if (!deliverySelect.value) {
+    alert("Please select a delivery type");
+    return;
+  }
+
+  if (!hasItems()) {
+    alert("Please add items to your order");
+    return;
+  }
+
+  rzp.open();
+};
+
+// Listen for changes in the order type
+document.getElementById('ordertype').addEventListener('change', handlePaymentChange);
+
+// Initial check when the page loads
+window.onload = handlePaymentChange;
+</script>
+
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+  <!-- Apex Chart-->
+  <script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/dashboard-default.js' %}"></script>
+{% endblock %}

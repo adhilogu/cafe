@@ -1,4 +1,6 @@
 {% load i18n static admin_berry %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <!-- [ Sidebar Menu ] start -->
 <nav class="pc-sidebar">
@@ -6,115 +8,145 @@
     <div class="m-header">
       <a href="/" class="b-brand">
         <!-- ========   Change your logo from here   ============ -->
-        <img src="{% static 'assets/images/logo-dark.svg' %}" alt="" class="logo logo-lg" />
+        <img src="{% static 'newicons/logots.png' %}" alt="Logo" class="logo logo-lg" style="width: 160px; height: 80px;" />
+
       </a>
     </div>
     <div class="navbar-content">
       <ul class="pc-navbar">
-        <li class="pc-item pc-caption">
-          <label>Dashboard</label>
-          <i class="ti ti-dashboard"></i>
-        </li>
-        
+        <!-- Dashboard Section -->
+
+
         <li class="pc-item">
           {% if request.user.is_superuser %}
-          <a href="{% url 'admin:index' %}" class="pc-link">
+            <a href="{% url 'admin:index' %}" class="pc-link">
           {% else %}
-          <a href="/" class="pc-link">
+            <a href="/" class="pc-link">
           {% endif %}
-            <span class="pc-micon"><i class="ti ti-dashboard"></i></span>
-            <span class="pc-mtext">Dashboard</span></a>
+            <span class="pc-micon"><i class="bi bi-house-heart-fill"></i></span>
+            <span class="pc-mtext">Home</span>
+          </a>
         </li>
 
+        <!-- Order Section -->
+        {% if request.user.is_authenticated %}
+          <li class="pc-item">
+            <a href="{% url 'order' %}" class="pc-link">
+              <span class="pc-micon"><i class="fa-solid fa-utensils"></i></span>
+              <span class="pc-mtext">Order</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          <li class="pc-item">
+            <a href="{% url 'order_status' %}" class="pc-link">
+              <span class="pc-micon"><i class="bi bi-hourglass-split"></i></span>
+              <span class="pc-mtext">Order Status</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          <li class="pc-item">
+            <a href="{% url 'agent' %}" class="pc-link">
+              <span class="pc-micon"><i class="bi bi-list-stars"></i></span>
+              <span class="pc-mtext">Agent</span>
+            </a>
+          </li>
+        {% endif %}
+
+
+
+        <!-- Dynamically Generated Admin Menu -->
         {% admin_get_menu as app_list %}
         {% if app_list %}
           {% for app in app_list %}
             {% if app.has_perms and not app.pinned %}
             <li class="pc-item pc-hasmenu">
               <a href="#!" class="pc-link">
-                <span class="pc-micon"><i class="ti {{app.icon}}"></i></span>
-                <span class="pc-mtext">{{ app.label|slice:15 }}{% if app.label|length > 15 %}..{% endif %}</span>
+                <span class="pc-micon"><i class="ti {{ app.icon }}"></i></span>
+                <span class="pc-mtext">
+                  {{ app.label|slice:15 }}{% if app.label|length > 15 %}..{% endif %}
+                </span>
                 <span class="pc-arrow"><i class="ti ti-chevron-right"></i></span>
               </a>
               {% if app.models %}
-                <ul class="pc-submenu">
-                  {% for model in app.models %}
+              <ul class="pc-submenu">
+                {% for model in app.models %}
                   {% if model.url %}
                   <li class="pc-item">
-                    <a class="pc-link" href="{{ model.url }}">
-                      {{ model.label }}
-                    </a>
+                    <a class="pc-link" href="{{ model.url }}">{{ model.label }}</a>
                   </li>
                   {% else %}
                   <li class="pc-item">{{ model.label }}</li>
                   {% endif %}
-                  {% endfor %}
-                </ul>
+                {% endfor %}
+              </ul>
               {% endif %}
             </li>
             {% endif %}
           {% endfor %}
         {% endif %}
 
+        <!-- Pages Section -->
+
+
+
+
+
+
+
+
+          {% if request.user.is_authenticated %}
+
+          {% if request.user.is_superuser %}
         <li class="pc-item pc-caption">
-          <label>Pages</label>
+          <label>Accounts</label>
+          <label>You are Admin</label>
+
           <i class="ti ti-news"></i>
         </li>
-        <li class="pc-item pc-hasmenu">
-          <a href="#!" class="pc-link"><span class="pc-micon"><i class="ti ti-key"></i></span><span
-              class="pc-mtext">Authentication</span><span class="pc-arrow"><i class="ti ti-chevron-right"></i></span></a>
-          <ul class="pc-submenu">
-            {% if request.user.is_superuser %}
-              <li class="pc-item"><a class="pc-link" href="{% url 'admin:password_change' %}">Change Password</a></li>
-              <li class="pc-item"><a class="pc-link" href="{% url 'admin:logout' %}">Logout</a></li>
-            {% else %}
-              {% if request.user.is_authenticated %}
-              <li class="pc-item"><a class="pc-link" href="{% url 'password_change' %}">Change Password</a></li>
-              <li class="pc-item"><a class="pc-link" href="{% url 'logout' %}">Logout</a></li>
-              {% else %}
-              <li class="pc-item"><a class="pc-link" href="{% url 'login' %}">Login</a></li>
-              <li class="pc-item"><a class="pc-link" href="{% url 'register' %}">Register</a></li>
-              {% endif %}
-            {% endif %}
-          </ul>
-        </li>
+            <li class="pc-item">
+              <a href="{% url 'password_change' %}" class="pc-link">
+                <span class="pc-micon"><i class="ti ti-lock"></i></span>
+                <span class="pc-mtext">Change Password</span>
+              </a>
+            </li>
+            <li class="pc-item">
+              <a href="{% url 'logout' %}" class="pc-link">
+                <span class="pc-micon"><i class="fa fa-sign-out"></i></span>
+                <span class="pc-mtext">Logout</span>
+              </a>
+            </li>
+          {% endif %}
 
-        {% if request.user.is_authenticated and not request.user.is_superuser %}
-        <li class="pc-item pc-caption">
-          <label>Elements</label>
-          <i class="ti ti-apps"></i>
-        </li>
-        <li class="pc-item">
-          <a href="{% url 'typography' %}" class="pc-link"><span class="pc-micon"><i
-                class="ti ti-typography"></i></span><span class="pc-mtext">Typography</span></a>
-        </li>
-        <li class="pc-item">
-          <a href="{% url 'color' %}" class="pc-link"><span class="pc-micon"><i class="ti ti-brush"></i></span><span
-              class="pc-mtext">Color</span></a>
-        </li>
-        <li class="pc-item">
-          <a href="{% url 'icon_tabler' %}" class="pc-link"><span class="pc-micon"><i
-                class="ti ti-plant-2"></i></span><span class="pc-mtext">Tabler</span><span class="pc-arrow"></a>
-        </li>
+          {% else %}
+            <li class="pc-item">
+              <a href="{% url 'login' %}" class="pc-link">
+                <span class="pc-micon"><i class="bi bi-box-arrow-in-right"></i></span>
+                <span class="pc-mtext">Login</span>
+              </a>
+            </li>
+            <li class="pc-item">
+              <a href="{% url 'register' %}" class="pc-link">
+                <span class="pc-micon"><i class="bi bi-person-add"></i></span>
+                <span class="pc-mtext">Register</span>
+              </a>
+            </li>
+          {% endif %}
 
-        <li class="pc-item pc-caption">
-          <label>Other</label>
-          <i class="ti ti-brand-chrome"></i>
-        </li>
-        <li class="pc-item">
-          <a href="{% url 'sample_page' %}" class="pc-link"><span class="pc-micon"><i
-                class="ti ti-brand-chrome"></i></span><span class="pc-mtext">Sample page</span></a></li>
-        <li class="pc-item">
-          <a href="https://github.com/app-generator/django-admin-berry" target="_blank" class="pc-link"><span
-              class="pc-micon"><i class="ti ti-vocabulary"></i></span><span class="pc-mtext">DOCS</span></a></li>
+
+        <!-- Elements Section -->
+
+
+
+
+
+        <!-- Other Section -->
+
+
       </ul>
-      {% endif %}
-      <div class="pc-navbar-card bg-primary rounded">
-        <h4 class="text-white">Django Berry PRO</h4>
-        <p class="text-white opacity-75">API, Charts, Celery</p>
-        <a href="https://appseed.us/product/berry-dashboard-pro/django/"  
-           target="_blank" class="btn btn-light text-primary">See Product</a>
-      </div>
     </div>
   </div>
 </nav>

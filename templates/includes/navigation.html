@@ -1,0 +1,542 @@
+{% load static %}
+<!-- [ Header Topbar ] start -->
+<header class="pc-header">
+  <div class="m-header">
+    {% if request.user.is_superuser %}
+      <a href="{% url 'admin:index' %}" class="b-brand">
+    {% else %}
+      <a href="/" class="pc-link">
+    {% endif %}
+      <!-- ========   change your logo here   ============ -->
+      <img src="{% static 'newicons/logots.png' %}" alt="Logo" class="logo logo-lg" style="width: 160px; height: 80px;" />
+    </a> <!-- This closes the <a> tag -->
+
+    <div class="pc-h-item">
+      <a href="#" class="pc-head-link head-link-secondary m-0" id="sidebar-hide">
+        <i class="ti ti-menu-2"></i>
+      </a>
+    </div>
+  </div>
+  <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
+<div class="me-auto pc-mob-drp">
+  <ul class="list-unstyled">
+    <li class="pc-h-item header-mobile-collapse">
+      <a href="#" class="pc-head-link head-link-secondary ms-0" id="mobile-collapse">
+        <i class="ti ti-menu-2"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+
+<!-- [Mobile Media Block end] -->
+<div class="ms-auto">
+  <ul class="list-unstyled">
+    <li class="pc-h-item">
+      <label class="pc-head-link head-link-secondary arrow-none me-0">
+        <input type="checkbox" id="p_dark_mode" class="d-none">
+        <i class="ti ti-sun" id="p_mode_icon"></i>
+      </label>
+    </li>
+
+
+
+
+
+
+
+
+    <!-- Cart Page --------------->
+
+    <li class="dropdown pc-h-item">
+    <a class="pc-head-link head-link-secondary dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" role="button" aria-haspopup="false" aria-expanded="false">
+        <i class="ti ti-shopping-cart"></i>
+    </a>
+
+    <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown" style="max-height: 400px; overflow-y: hidden;">
+        <!-- Cart Header Section -->
+        <div class="dropdown-header d-flex justify-content-between align-items-center" style="position: sticky; top: 0; background-color: #ffffff; z-index: 10; padding: 5px 10px;">
+            <div class="w-100" id="user-cart-row" style="padding: 5px; color: white; display: flex; justify-content: center; align-items: center;">
+                <h5 class="m-0" style="font-size: 0.9rem; text-align: center; color: #007bff;">
+                    {% if request.user.first_name %}
+                        <span style="text-transform: uppercase;">{{ request.user.first_name }}</span>'s Cart
+                    {% else %}
+                        User's Cart
+                    {% endif %}
+                </h5>
+            </div>
+            <a href="javascript:void(0)" class="btn btn-danger btn-sm text-white rounded-3 close-cart-btn" style="font-size: 0.6rem; padding: 3px 7px;">Close Cart</a>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <!-- Cards for Total Items and Total Bill -->
+        <div class="d-flex justify-content-center gap-4 mt-3 px-2">
+            <div class="card-info-item" style="background-color: #fcd734; width: 130px; height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; padding: 15px; color: white;">
+                <h6 style="font-size: 0.9rem; margin-bottom: 5px;color: black;">Total Items</h6>
+                <span style="font-size: 1.2rem; font-weight: bold; color: black;">00</span>
+            </div>
+            <div class="card-info-item" style="background-color: #f79c42; width: 130px; height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; padding: 15px; color: white;">
+                <h6 style="font-size: 0.9rem; margin-bottom: 5px;color: black;">Total Bill</h6>
+                <span style="font-size: 1.2rem; font-weight: bold; color: black;">₹ 0</span>
+            </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <!-- Cart Items -->
+        <div class="cart-items-container px-3" style="max-height: 250px; overflow-y: auto; padding-bottom: 50px;">
+            {% for item in cart_items %}
+            <div class="cart-item d-flex align-items-center justify-content-between mb-3 p-2" style="background-color: #f8f9fa; border-radius: 10px;">
+                <!-- Dish Image -->
+                <div class="d-flex justify-content-center align-items-center" style="flex-shrink: 0; width: 60px; height: 60px; margin-right: 8px;">
+                    {% if item.dish.photo %}
+                        <img src="{{ item.dish.photo.url }}" alt="{{ item.dish.name }}" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'path/to/default-dish-image.jpg' %}" alt="{{ item.dish.name }}" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                    {% endif %}
+                </div>
+
+                <!-- Dish Name -->
+                <div class="d-flex justify-content-center align-items-center text-center" style="flex-grow: 1; padding: 0 5px; max-width: 80px; word-break: break-word; white-space: normal; margin-right: 8px;">
+                    <h6 class="mb-0" style="font-size: 0.8rem;">{{ item.dish.name }}</h6>
+                </div>
+
+                <!-- Quantity & Price -->
+                <div class="d-flex flex-column justify-content-center align-items-center" style="flex-shrink: 0; margin-right: 8px;">
+                    <div class="d-flex align-items-center mb-2" style="gap: 5px;">
+                        <button class="btn btn-sm p-0 quantity-decrease" style="color: #6a1b9a; font-size: 1.1rem;">-</button>
+                        <input type="number" class="form-control form-control-sm text-center quantity-input" value="{{ item.quantity }}" style="width: 40px; padding: 2px; height: 28px; font-size: 0.9rem;" readonly>
+                        <button class="btn btn-sm p-0 quantity-increase" style="color: #6a1b9a; font-size: 1.1rem;">+</button>
+                    </div>
+                    <p class="mb-0" style="font-size: 0.9rem; font-weight: bold; color: #3e8e41;">₹{{ item.price|floatformat:2 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Checkout Button -->
+        <div class="dropdown-footer d-flex justify-content-center mt-3" style="display: none;">
+            <!-- The "Cart is empty" message will be dynamically inserted here -->
+        </div>
+
+    </div>
+</li>
+
+
+
+
+    <!-- Profile -->
+
+      {% if request.user.is_authenticated %}
+    <li class="dropdown pc-h-item header-user-profile">
+      <a class="pc-head-link head-link-primary dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
+           role="button" aria-haspopup="false" aria-expanded="false">
+            <img src="{% if request.user.userprofile.profile_image %}{{ request.user.userprofile.profile_image.url }}{% else %}{% static 'newicons/profiledefault.png' %}{% endif %}"
+                 alt="user-image"
+                 class="user-avatar"
+                 style="width: clamp(35px, 90%, 30px); height: clamp(35px, 30%, 30px);  object-fit: cover; border-radius: 50%;" />
+        </a>
+
+
+      <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
+        <div class="dropdown-header text-center">
+            <h4 class="mb-1">Welcome</h4>
+            <h2 class="text-primary">{{ request.user.first_name }}!</h2>
+
+
+          <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 280px)">
+            <hr />
+            <a href="{% url 'profile' %}" class="dropdown-item">
+              <i class="bi bi-person-vcard"></i>
+              <span>View Account</span>
+            </a>
+
+              <a href="{% url 'password_change' %}" class="dropdown-item">
+              <i class="ti ti-lock"></i>
+              <span>Change Password</span>
+            </a>
+
+            {% if request.user.is_authenticated %}
+              {% if request.user.is_superuser %}
+                <a href="{% url 'admin:logout' %}" class="dropdown-item">
+              {% else %}
+                <a href="{% url 'logout' %}" class="dropdown-item">
+              {% endif %}
+              <i class="ti ti-logout"></i>
+              <span>Logout</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </li>
+      {% endif %}
+  </ul>
+</div>
+ </div>
+</header>
+<!-- [ Header ] end -->
+
+
+<style>
+    .blurred-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
+    backdrop-filter: blur(10px); /* Blur effect */
+    z-index: 999; /* Ensure it's behind the dropdown */
+    pointer-events: none; /* Allows interaction with the dropdown */
+}
+
+.dropdown-menu {
+    z-index: 1000; /* Keep the dropdown above the blur */
+}
+
+</style>
+
+
+
+
+
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const dropdown = document.querySelector('.dropdown');
+    const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+    const closeCartButtons = document.querySelectorAll('.close-cart-btn');
+    const blurBackgroundClass = 'blurred-bg';
+
+    // Toggle blur effect when the cart dropdown is toggled
+    dropdown.addEventListener('show.bs.dropdown', function () {
+        document.body.classList.add(blurBackgroundClass);
+    });
+
+    dropdown.addEventListener('hide.bs.dropdown', function () {
+        document.body.classList.remove(blurBackgroundClass);
+    });
+
+    // Handle "Close Cart" button clicks
+    closeCartButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+                document.body.classList.remove(blurBackgroundClass); // Remove blur when cart is closed
+            }
+        });
+    });
+});
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Update quantity in the cart
+    document.querySelectorAll(".quantity-decrease, .quantity-increase").forEach(button => {
+        button.addEventListener("click", function () {
+            const parent = this.closest(".cart-item");
+            const quantityInput = parent.querySelector(".quantity-input");
+            let quantity = parseInt(quantityInput.value);
+
+            if (this.classList.contains("quantity-decrease")) {
+                if (quantity > 1) quantity -= 1;
+            } else if (this.classList.contains("quantity-increase")) {
+                quantity += 1;
+            }
+
+            quantityInput.value = quantity;
+            const itemId = parent.getAttribute("data-item-id");
+            updateCartQuantity(itemId, quantity);
+
+            // Update UI totals
+            updateCartTotals();
+        });
+    });
+
+    // Remove item from the cart
+    document.querySelectorAll(".remove-item").forEach(button => {
+        button.addEventListener("click", function () {
+            const parent = this.closest(".cart-item");
+            const itemId = parent.getAttribute("data-item-id");
+
+            removeFromCart(itemId);
+            parent.remove(); // Remove the item from the UI
+
+            // Update UI totals
+            updateCartTotals();
+
+            // Check if the cart is empty
+            checkEmptyCart();
+        });
+    });
+
+    // Close the dropdown when the "Close Cart" button is clicked
+    document.querySelectorAll('.close-cart-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            let dropdown = document.querySelector('.dropdown');
+            let dropdownMenu = dropdown.querySelector('.dropdown-menu');
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    });
+
+    // Prevent the dropdown from closing when clicking inside the cart
+    document.querySelector('.dropdown-menu').addEventListener('click', function (event) {
+        event.stopPropagation();
+    });
+
+    // Smooth scroll for cart items container
+    const cartItemsContainer = document.querySelector('.cart-items-container');
+    cartItemsContainer.style.scrollBehavior = "smooth";
+
+    // Check if the cart is empty on page load
+    checkEmptyCart();
+});
+
+// Function to update quantity
+function updateCartQuantity(itemId, quantity) {
+    const url = "/update-cart/"; // Update with your Django view URL
+    const csrfToken = getCsrfToken();
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+            quantity: quantity,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Cart updated:", data);
+            // Optionally update total price or other UI components
+            updateCartTotals();
+        })
+        .catch(error => {
+            console.error("Error updating cart:", error);
+        });
+
+}
+
+// Function to remove item from the cart
+function removeFromCart(itemId) {
+    const url = "/remove-from-cart/"; // Update with your Django view URL
+    const csrfToken = getCsrfToken();
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Item removed:", data);
+            // Optionally update total price or other UI components
+            updateCartTotals();
+
+        })
+        .catch(error => {
+            console.error("Error removing item:", error);
+        });
+
+}
+
+// Function to update cart totals
+function updateCartTotals() {
+    let totalItems = 0;
+    let totalBill = 0;
+
+    document.querySelectorAll(".cart-item").forEach(item => {
+        const quantity = parseInt(item.querySelector(".quantity-input").value);
+        const price = parseFloat(item.querySelector(".item-price").innerText.replace("₹", ""));
+        totalItems += quantity;
+        totalBill += quantity * price;
+    });
+
+    document.querySelector(".total-items").innerText = totalItems;
+    document.querySelector(".total-bill").innerText = `₹${totalBill.toFixed(2)}`;
+
+
+}
+
+// Function to check if the cart is empty
+function checkEmptyCart() {
+    const cartItems = document.querySelectorAll(".cart-item");
+    const footer = document.querySelector(".dropdown-footer.d-flex.justify-content-center.mt-3");
+    const totalsSection = document.querySelector(".totals-section");
+
+    if (cartItems.length === 0) {
+        // Show "Cart is empty" message
+        footer.innerHTML = `<p style="color: #6c757d; font-size: 0.9rem;">Cart is empty</p>`;
+        footer.style.display = "block"; // Ensure footer is visible
+        totalsSection.style.display = "none"; // Hide totals section
+    } else {
+        // Clear "Cart is empty" message and hide the footer
+        footer.innerHTML = "";
+        footer.style.display = "none"; // Hide footer when the cart has items
+        totalsSection.style.display = "flex"; // Show totals section
+    }
+}
+
+
+
+// Helper function to get CSRF token from cookies
+function getCsrfToken() {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === "csrftoken") {
+            return value;
+        }
+    }
+    return "";
+}
+
+
+
+
+
+
+
+
+
+let cart = {};
+
+function updateCartUI() {
+    const cartItemsContainer = document.querySelector('.cart-items-container');
+    cartItemsContainer.innerHTML = '';
+
+    if (Object.keys(cart).length === 0) {
+        updateCartCount();
+        // Disable the checkout button if the cart is empty
+        document.querySelector('.checkout-btn').disabled = true;
+        document.querySelector('.checkout-btn').classList.add('disabled'); // Optional: add disabled styling
+        return;
+    }
+
+    let totalItems = 0;
+    let totalBill = 0;
+
+    for (const [dishId, cartItem] of Object.entries(cart)) {
+        const { name, price, quantity, image, photo } = cartItem;
+        const imageUrl = photo || image;
+
+        if (!imageUrl) {
+            console.error(`No image available for dish ID ${dishId}`);
+            continue;
+        }
+
+        cartItemsContainer.innerHTML += `
+            <div class="cart-item d-flex align-items-center justify-content-between mb-3 p-2" style="background-color: #f8f9fa; border-radius: 10px;">
+                <div class="d-flex justify-content-center align-items-center" style="flex-shrink: 0; width: 60px; height: 60px; margin-right: 8px;">
+                    <img src="${imageUrl}" alt="${name}" style="border-radius: 8px; object-fit: cover; width: 100%; height: 100%;">
+                </div>
+                <div class="d-flex justify-content-center align-items-center text-center" style="flex-grow: 1; padding: 0 5px; max-width: 80px; word-break: break-word; white-space: normal; margin-right: 8px;">
+                    <h6 class="mb-0" style="font-size: 0.8rem;">${name}</h6>
+                </div>
+                <div class="d-flex flex-column justify-content-center align-items-center" style="flex-shrink: 0; margin-right: 8px;">
+                    <div class="d-flex align-items-center mb-2" style="gap: 5px;">
+                        <button class="btn btn-sm p-0" style="color: #6a1b9a; font-size: 1.1rem; width: 24px; height: 24px; line-height: 1;" onclick="updateQuantity(${dishId}, -1)">-</button>
+                        <input type="number" class="form-control form-control-sm text-center quantity-input" value="${quantity}" style="width: 40px; padding: 2px; height: 28px; font-size: 0.9rem;" readonly>
+                        <button class="btn btn-sm p-0" style="color: #6a1b9a; font-size: 1.1rem; width: 24px; height: 24px; line-height: 1;" onclick="updateQuantity(${dishId}, 1)">+</button>
+                    </div>
+                    <p class="mb-0 item-price" style="font-size: 0.9rem; font-weight: bold; color: #3e8e41;">₹${(price * quantity).toFixed(2)}</p>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" style="flex-shrink: 0; width: 26px; height: 26px;">
+                    <button class="btn btn-sm btn-danger p-1" onclick="removeFromCart(${dishId})">
+                        <i class="ti ti-x" style="font-size: 0.9rem;"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        totalItems += quantity;
+        totalBill += price * quantity;
+    }
+
+    document.querySelector('.card-info-item:nth-child(1) span').textContent = totalItems;
+    document.querySelector('.card-info-item:nth-child(2) span').textContent = `₹${totalBill.toFixed(2)}`;
+
+    // Append the checkout button only when the cart is not empty
+    cartItemsContainer.innerHTML += `
+        <div class="text-center">
+        <button class="checkout-btn btn btn-success btn-lg text-white rounded-3"
+                style="font-size: 1.1rem; padding: 5px 5px;"
+                onclick="handleCheckout()">
+            Checkout
+        </button>
+    </div>
+    `;
+
+    updateCartCount();
+    checkEmptyCart();
+
+    // Attach the click event listener for the dynamically created Checkout button
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    if (Object.keys(cart).length === 0) {
+        checkoutBtn.disabled = true; // Disable checkout if cart is empty
+        checkoutBtn.classList.add('disabled'); // Optional: add disabled styling
+    } else {
+        checkoutBtn.disabled = false; // Enable checkout if cart is not empty
+        checkoutBtn.classList.remove('disabled');
+    }
+}
+
+
+
+
+function handleCheckout() {
+    if (Object.keys(cart).length === 0) {
+        return; // Exit if the cart is empty
+    }
+
+    const cartDetails = Object.entries(cart).map(([dishId, item]) => ({
+        id: parseInt(dishId, 10), // Ensure ID is sent as an integer
+        quantity: item.quantity,
+    }));
+
+    fetch('/checkout/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cart: cartDetails }),
+})
+    .then((response) => response.json())
+    .then((data) => {
+        console.log("Checkout Response:", data); // Add this line
+        if (data.success && data.redirect_url) {
+            window.location.href = data.redirect_url;
+        }
+    });
+
+}
+
+
+
+
+
+
+
+
+</script>

@@ -1,0 +1,306 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Dashboard {% endblock %}
+{% block content %}
+  <!-- [ Main Content ] start -->
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+</head>
+
+
+  <div class="pc-container">
+    <div class="pc-content">
+      <div class="row">
+        <!-- Search Card -->
+
+
+        <!-- Task Stats and Toggle Button -->
+        <div class="col-xl-8 col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="col-xl-4 col-md-6">
+                <div class="card shadow-lg border-0" id="input-section" style="background-color: #fcf3d1; padding: 2px; border-radius: 10px;">
+                  <div class="card-body p-2 d-flex flex-column align-items-center">
+                    <!-- Search Form -->
+                    <form id="search-form" method="get" autocomplete="off" class="d-flex align-items-center w-100 mb-2">
+                      <!-- CSRF Token -->
+                      {% csrf_token %}
+
+                      <!-- Input Field -->
+                      <input type="search" id="search-input" placeholder="Search Order id..."
+                        style="font-size: 1rem; font-weight: bold; padding: 8px; background-color: #fcf3d1; color: black; border: none; outline: none; width: 85%; margin-right: 10px;" />
+
+                      <!-- Search Button -->
+                      <button type="submit" id="search-btn" class="btn" style="background-color: #fcf3d1; color: #f7c64b; border: none; border-radius: 8px; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center;">
+                        <i class="fa fa-search" aria-hidden="true" style="font-size: 1.5rem; color: #ffb700;"></i>
+                      </button>
+
+                      <!-- Filter Icon -->
+                    </form>
+
+                    <!-- Filter Dropdown -->
+
+
+                  </div>
+                </div>
+              </div>
+              <!-- Left-Right Toggle for Completed/Incompleted -->
+              <div class="d-flex justify-content-center mb-3">
+                <div class="btn-group" role="group" aria-label="Task Status">
+                  <!-- Completed Button (Green) -->
+                  <button type="button" class="btn btn-outline-success toggle-btn" id="completed-btn" onclick="toggleStatus('completed')">Completed</button>
+                  <!-- Incomplete Button (Red) -->
+                  <button type="button" class="btn btn-outline-danger toggle-btn" id="incomplete-btn" onclick="toggleStatus('incomplete')">Incomplete</button>
+                </div>
+              </div>
+
+              <!-- Task Stats Below the Toggle Button -->
+              <div class="row mb-3 text-center">
+                <div class="col">
+                  <small>Task Completed</small>
+                  <h3 id="completed-count" class="fw-bold">23</h3>
+                </div>
+                <div class="col">
+                  <small>Task Incomplete</small>
+                  <h3 id="incomplete-count" class="fw-bold">23</h3>
+                </div>
+                <div class="col">
+                  <small>Total Task</small>
+                  <h3 id="total-count" class="fw-bold">34</h3>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Example Order 1 -->
+            <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm h-100 p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <!-- Order ID and Customer Name -->
+                        <div>
+                            <h6 class="card-title font-weight-bold" style="font-size: 1.3rem;">Order ID: 101</h6>
+                            <p class="card-text text-muted" style="font-size: 0.9rem;">Customer: John Doe</p>
+                        </div>
+                        <!-- Order Status -->
+                        <span class="badge bg-success rounded-pill px-3 py-2" style="font-size: 1.1rem;">Completed</span>
+                    </div>
+
+                    <!-- Dish List with Quantity -->
+                    <div>
+                        <strong>Ordered Dishes:</strong>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-101-1" style="width: 20px; height: 20px;">
+                                    <label for="dish-101-1" style="margin-left: 10px; font-size: 1.2rem;">Paneer Butter Masala</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 2</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-101-2" style="width: 20px; height: 20px;">
+                                    <label for="dish-101-2" style="margin-left: 10px; font-size: 1.2rem;">Veg Biryani</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 1</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-101-3" style="width: 20px; height: 20px;">
+                                    <label for="dish-101-3" style="margin-left: 10px; font-size: 1.2rem;">Garlic Naan</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 4</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Total Bill -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <strong style="font-size: 1.2rem;">Total Bill: ₹750</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example Order 2 -->
+            <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm h-100 p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <!-- Order ID and Customer Name -->
+                        <div>
+                            <h6 class="card-title font-weight-bold" style="font-size: 1.3rem;">Order ID: 102</h6>
+                            <p class="card-text text-muted" style="font-size: 0.9rem;">Customer: Alice Smith</p>
+                        </div>
+                        <!-- Order Status -->
+                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2" style="font-size: 1.1rem;">Pending</span>
+                    </div>
+
+                    <!-- Dish List with Quantity -->
+                    <div>
+                        <strong>Ordered Dishes:</strong>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-102-1" style="width: 20px; height: 20px;">
+                                    <label for="dish-102-1" style="margin-left: 10px; font-size: 1.2rem;">Chicken Tikka</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 1</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-102-2" style="width: 20px; height: 20px;">
+                                    <label for="dish-102-2" style="margin-left: 10px; font-size: 1.2rem;">Butter Chicken</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 2</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <input type="checkbox" id="dish-102-3" style="width: 20px; height: 20px;">
+                                    <label for="dish-102-3" style="margin-left: 10px; font-size: 1.2rem;">Plain Rice</label>
+                                </div>
+                                <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: 1</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Total Bill -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <strong style="font-size: 1.2rem;">Total Bill: ₹950</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- More rows or content -->
+      </div>
+    </div>
+
+
+<style>
+
+
+    .btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 30px; /* Rounded corners */
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for pop */
+    font-size: 0.85rem; /* Slightly smaller font for compact design */
+
+}
+
+.btn-primary:hover {
+    background-color: #007bff;
+    transform: translateY(-2px); /* Lift effect */
+}
+
+.position-absolute {
+    z-index: 1;
+    transform: translateY(10%);
+}
+
+/* Enhanced design for the toggle buttons */
+/* Enhanced design for the toggle buttons */
+.toggle-btn {
+  transition: background-color 0.3s, color 0.3s, border 0.3s;
+}
+
+.toggle-btn.active {
+  color: white;
+}
+
+.toggle-btn.active.btn-success {
+  background-color: #28a745;  /* Green for Completed */
+  border-color: #28a745;
+}
+
+.toggle-btn.active.btn-danger {
+  background-color: #dc3545;  /* Red for Incomplete */
+  border-color: #dc3545;
+}
+
+.toggle-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.toggle-btn:focus {
+  box-shadow: none;
+}
+
+</style>
+
+<script>
+  function toggleStatus(status) {
+    // Reset button styles
+    const completedButton = document.getElementById('completed-btn');
+    const incompleteButton = document.getElementById('incomplete-btn');
+
+    // Check status and apply corresponding classes
+    if (status === 'completed') {
+      completedButton.classList.add('active');
+      incompleteButton.classList.remove('active');
+
+      completedButton.classList.add('btn-success');
+      completedButton.classList.remove('btn-outline-success');
+
+      incompleteButton.classList.add('btn-outline-danger');
+      incompleteButton.classList.remove('btn-danger');
+    } else {
+      incompleteButton.classList.add('active');
+      completedButton.classList.remove('active');
+
+      completedButton.classList.add('btn-outline-success');
+      completedButton.classList.remove('btn-success');
+
+      incompleteButton.classList.add('btn-danger');
+      incompleteButton.classList.remove('btn-outline-danger');
+    }
+  }
+
+  // Initialize the first button as active
+  toggleStatus('completed');
+
+
+</script>
+
+{% endblock %}
+
+
+{% block extra_js %}
+  <!-- Apex Chart-->
+  <script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/dashboard-default.js' %}"></script>
+{% endblock %}

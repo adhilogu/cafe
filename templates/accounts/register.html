@@ -20,6 +20,13 @@
                 </div>
               </div>
             </div>
+            <button type="button" class="btn mt-2 btn-light-primary bg-light text-muted" style="width: 100%">
+              <img src="{% static 'assets/images/authentication/google-icon.svg' %}" />Sign Up With Google
+            </button>
+            <div class="saprator mt-3">
+              <span>or</span>
+            </div>
+            <h5 class="my-4 d-flex justify-content-center">Sign Up with Email address</h5>
             <form method="post">
               {% csrf_token %}
 
