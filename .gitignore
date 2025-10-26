@@ -7,7 +7,6 @@ Dockerfile
 LICENSE.md
 render.yaml
 Thumbs.db
-env.sample
 package-lock.json
 package.json
 Procfile
