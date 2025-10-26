@@ -14,3 +14,5 @@ Procfile
 README_branching.md
 CHANGELOG.md
 .DS_Store
+nginx
+
