@@ -1,0 +1,325 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Order Status {% endblock %}
+{% block content %}
+<div class="pc-container">
+    <div class="pc-content">
+        <div class="row d-flex justify-content-center">
+            <div class="container-fluid px-4">
+                <!-- Debug Information (remove in production) -->
+
+                {% if error_message %}
+                    <div class="alert alert-danger text-center mb-4">
+                        {{ error_message }}
+                    </div>
+                {% endif %}
+
+                <!-- Pending Orders Section -->
+                <div class="mb-5">
+                    <h3 class="mb-4" style="color: #613cb0; font-weight: bold;">
+                        <i class="fas fa-clock me-2"></i>Pending Orders
+                    </h3>
+                    {% if pending_orders %}
+                        <div class="row justify-content-center">
+                            {% for order in pending_orders %}
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
+                                    <div class="card shadow-sm h-100 order-card">
+                                        <div class="card-body p-3 p-sm-4">
+                                            <!-- Order Header -->
+                                            <div class="bg-light-info rounded p-3 mb-4" style="background-color: #c3faf2;">
+                                                <div class="order-header mb-3">
+                                                    <div class="order-title">
+                                                        <h6 class="card-title fw-bold mb-1" style="font-size: clamp(1rem, 3vw, 1.1rem);">
+                                                            Order #{{ order.order_id }}
+                                                        </h6>
+                                                        <p class="card-text text-muted mb-0">{{ order.order_name }}</p>
+                                                    </div>
+                                                    <div class="order-badge">
+                                                        <span class="badge {% if order.order_status == 'preparing' %}bg-warning{% elif order.order_status == 'out_for_delivery' %}bg-info{% else %}bg-secondary{% endif %} text-dark">
+                                                            {% if order.order_status == 'preparing' %}
+                                                                <i class="fas fa-utensils me-1"></i>Preparing
+                                                            {% elif order.order_status == 'out_for_delivery' %}
+                                                                <i class="fas fa-shipping-fast me-1"></i>Out for Delivery
+                                                            {% else %}
+                                                                {{ order.order_status|title }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Order Details -->
+                                                <div class="order-details">
+                                                    {% if order.agents.all %}
+                                                    <p class="card-text mb-2">
+                                                        <strong><i class="fas fa-user-tie me-1"></i>Agents:</strong>
+                                                        {% for agent in order.agents.all %}
+                                                            {{ agent.user.username }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </p>
+                                                    {% endif %}
+                                                    <p class="card-text mb-2">
+                                                        <strong><i class="fas fa-phone me-1"></i>Phone:</strong>
+                                                        {{ order.order_phonenumber|default:"Not Provided" }}
+                                                    </p>
+                                                    <p class="card-text mb-0">
+                                                        <strong><i class="fas fa-calendar-alt me-1"></i>Ordered:</strong>
+                                                        {{ order.ordered_time|date:"d M Y, h:i A" }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dish List -->
+                                            <div class="mb-4">
+                                                <strong class="d-block text-black mb-3"><i class="fas fa-list me-1"></i>Ordered Dishes:</strong>
+                                                <ul class="list-group list-group-flush">
+                                                    {% for item in order.items %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                                                            <span class="dish-name text-black">{{ item.dish_name }}</span>
+                                                            <span class="badge bg-primary quantity-badge">× {{ item.dish_quantity }}</span>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="list-group-item py-2 px-0 text-muted">No dishes found</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+
+                                            <!-- Order Summary -->
+                                            <div class="order-summary">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong><i class="fas fa-box me-1 text-black"></i>Total Items:</strong>
+                                                    <strong>{{ order.total_quantity|default:0 }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <strong><i class="fas fa-receipt me-1 text-black"></i>Total Bill:</strong>
+                                                    <strong class="text-black">₹{{ order.bill_value|floatformat:2 }}</strong>
+                                                </div>
+                                                <div class="text-center">
+                                                    <span class="badge bg-success payment-badge text-dark">
+                                                        <i class="fas fa-check-circle me-1"></i>Paid
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x mb-3" style="color: #d1c4e9;"></i>
+                            <p style="color: #6a1b9a; font-size: 1.2rem;">No pending orders found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Completed Orders Section -->
+                <div class="mb-5">
+                    <h3 class="mb-4" style="color: #613cb0; font-weight: bold;">
+                        <i class="fas fa-check-circle me-2"></i>Completed Orders
+                    </h3>
+                    {% if completed_orders %}
+                        <div class="row justify-content-center">
+                            {% for order in completed_orders %}
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-4">
+                                    <div class="card shadow-sm h-100 order-card">
+                                        <div class="card-body p-3 p-sm-4">
+                                            <!-- Order Header -->
+                                            <div class="bg-light-success rounded p-3 mb-4" style="background-color: #d4edda;">
+                                                <div class="order-header mb-3">
+                                                    <div class="order-title">
+                                                        <h6 class="card-title fw-bold mb-1" style="font-size: clamp(1rem, 3vw, 1.1rem);">
+                                                            Order #{{ order.order_id }}
+                                                        </h6>
+                                                        <p class="card-text text-muted mb-0">{{ order.order_name }}</p>
+                                                    </div>
+                                                    <div class="order-badge">
+                                                        <span class="badge bg-success text-dark">
+                                                            <i class="fas fa-check me-1"></i>Delivered
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Order Details -->
+                                                <div class="order-details">
+                                                    {% if order.agents.all %}
+                                                    <p class="card-text mb-2">
+                                                        <strong><i class="fas fa-user-tie me-1"></i>Agents:</strong>
+                                                        {% for agent in order.agents.all %}
+                                                            {{ agent.user.username }}{% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </p>
+                                                    {% endif %}
+                                                    <p class="card-text mb-2">
+                                                        <strong><i class="fas fa-phone me-1"></i>Phone:</strong>
+                                                        {{ order.order_phonenumber|default:"Not Provided" }}
+                                                    </p>
+                                                    <p class="card-text mb-0">
+                                                        <strong><i class="fas fa-calendar-alt me-1"></i>Ordered:</strong>
+                                                        {{ order.ordered_time|date:"d M Y, h:i A" }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dish List -->
+                                            <div class="mb-4">
+                                                <strong class="d-block mb-3"><i class="fas fa-list me-1"></i>Ordered Dishes:</strong>
+                                                <ul class="list-group list-group-flush">
+                                                    {% for item in order.items %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                                                            <span class="dish-name">{{ item.dish_name }}</span>
+                                                            <span class="badge bg-primary quantity-badge">× {{ item.dish_quantity }}</span>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="list-group-item py-2 px-0 text-muted">No dishes found</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+
+                                            <!-- Order Summary -->
+                                            <div class="order-summary">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong><i class="fas fa-box me-1 text-black"></i>Total Items:</strong>
+                                                    <strong>{{ order.total_quantity|default:0 }}</strong>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <strong><i class="fas fa-receipt me-1 text-black"></i>Total Bill:</strong>
+                                                    <strong class="text-primary text-black">₹{{ order.bill_value|floatformat:2 }}</strong>
+                                                </div>
+                                                <div class="text-center">
+                                                    <span class="badge bg-success payment-badge">
+                                                        <i class="fas fa-check-circle me-1"></i>Paid
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x mb-3" style="color: #d1c4e9;"></i>
+                            <p style="color: #6a1b9a; font-size: 1.2rem;">No completed orders found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    .order-card {
+        border-radius: 1rem;
+        border: none;
+        background-color: #fff;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .order-header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .order-title h6 {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+        color: #2c3e50;
+    }
+
+    .order-title p {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .order-badge .badge {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .order-details p {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .dish-name {
+        font-size: 1rem;
+        margin-right: 0.5rem;
+        flex: 1;
+        word-wrap: break-word;
+    }
+
+    .quantity-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .payment-badge {
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+    }
+
+    .list-group-item {
+        border-left: 0;
+        border-right: 0;
+    }
+
+    .order-summary {
+        padding-top: 0.5rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    @media (max-width: 576px) {
+        .order-title h6 {
+            font-size: 1rem;
+        }
+
+        .order-title p {
+            font-size: 0.85rem;
+        }
+
+        .order-badge .badge {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .dish-name {
+            font-size: 0.9rem;
+        }
+
+        .quantity-badge {
+            font-size: 0.75rem;
+        }
+
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        .order-details p {
+            font-color: black;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/dashboard-default.js' %}"></script>
+{% endblock %}

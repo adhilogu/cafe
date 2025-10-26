@@ -1,0 +1,45 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Order Successful {% endblock %}
+{% block content %}
+<div class="pc-container">
+    <div class="pc-content">
+        <div class="row">
+            <div class="col-xl-8 col-md-8 mx-auto">
+                <div class="card shadow-lg" style="border: none; max-width: 600px; margin: 0 auto; border-radius: 15px;">
+                    <div class="card-body" style="padding: 30px; display: flex; flex-direction: column; align-items: center;">
+                        <div class="row align-items-center" style="width: 100%; justify-content: center;">
+                            <!-- Success Image (on the left) -->
+                            <div class="col d-flex align-items-center justify-content-center" style="text-align: center;">
+                                <img id="successGif" src="{% static 'newicons/success.gif' %}" alt="Success" style="width: 130px; height: 130px; margin-bottom: 20px;">
+                                <img id="dishGif" src="{% static 'newicons/foodprep.gif' %}" alt="Dish" style="width: 130px; height: 130px; margin-bottom: 20px; display: none;">
+                            </div>
+                        </div>
+                        <!-- Order Details Section -->
+                        <h5 class="mb-0" style="font-size: clamp(1rem, 3vw, 1.75rem); font-weight: bold; color: #28a745;">Order Successful!</h5>
+                        <br>
+                        <p style="font-size: 1rem; color: #6c757d; margin-bottom: 10px; text-align: center;">Order ID: <strong>{{ order_id }}</strong></p>
+                        <p style="font-size: 1rem; color: #6c757d; margin-bottom: 10px; text-align: center;">Total Amount: <strong>₹{{ total_bill|floatformat:2 }}</strong></p>
+                        <p style="font-size: 1rem; color: #6c757d; margin-bottom: 10px; text-align: center;">Items Ordered: <strong>{{ total_quantity }}</strong></p>
+                        <p style="font-size: 1rem; color: #6c757d; margin-bottom: 10px; text-align: center;">Order Status: <strong>{{ order_status|title }}</strong></p>
+                        <a href="{% url 'order_status' %}" class="btn btn-primary" style="margin-top: 20px; padding: 10px 20px; font-size: 1rem; border-radius: 5px; text-align: center;">View Order Status</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        var successGif = document.getElementById("successGif");
+        var dishGif = document.getElementById("dishGif");
+
+        setTimeout(function() {
+            successGif.style.display = "none";
+            dishGif.style.display = "block";
+        }, 3000);
+    };
+</script>
+{% endblock %}

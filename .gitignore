@@ -1,0 +1,16 @@
+.env
+.venv
+.idea
+build.sh
+docker-compose.yml
+Dockerfile
+LICENSE.md
+render.yaml
+Thumbs.db
+env.sample
+package-lock.json
+package.json
+Procfile
+README_branching.md
+CHANGELOG.md
+.DS_Store

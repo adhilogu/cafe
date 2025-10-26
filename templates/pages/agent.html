@@ -1,0 +1,371 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Agent Dashboard {% endblock %}
+{% block content %}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<div class="pc-container">
+    <div class="pc-content">
+      <div class="row">
+        <!-- Task Stats and Toggle Button -->
+        <div class="col-xl-8 col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="col-xl-4 col-md-6">
+                <div class="card shadow-lg border-0" id="input-section" style="background-color: #fcf3d1; padding: 2px; border-radius: 10px;">
+                  <div class="card-body p-2 d-flex flex-column align-items-center">
+                    <!-- Search Form -->
+                    <form id="search-form" method="get" autocomplete="off" class="d-flex align-items-center w-100 mb-2">
+                      {% csrf_token %}
+                      <input type="search" name="search" id="search-input" placeholder="Search Order id..." value="{{ search_query }}"
+                        style="font-size: 1rem; font-weight: bold; padding: 8px; background-color: #fcf3d1; color: black; border: none; outline: none; width: 85%; margin-right: 10px;" />
+                      <button type="submit" id="search-btn" class="btn" style="background-color: #fcf3d1; color: #f7c64b; border: none; border-radius: 8px; height: 40px; width: 40px; display: flex; justify-content: center; align-items: center;">
+                        <i class="fa fa-search" aria-hidden="true" style="font-size: 1.5rem; color: #ffb700;"></i>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Left-Right Toggle for Online/Offline -->
+              <div class="d-flex justify-content-center mb-3">
+                <div class="btn-group" role="group" aria-label="Agent Status">
+                  <!-- Online Button (Green) -->
+                  <button type="button" class="btn btn-outline-success toggle-btn {% if request.user.userprofile.agent_status %}active btn-success{% else %}btn-outline-success{% endif %}" id="online-btn" onclick="toggleStatus('online')">Online</button>
+                  <!-- Offline Button (Red) -->
+                  <button type="button" class="btn btn-outline-danger toggle-btn {% if not request.user.userprofile.agent_status %}active btn-danger{% else %}btn-outline-danger{% endif %}" id="offline-btn" onclick="toggleStatus('offline')">Offline</button>
+                </div>
+              </div>
+
+              <!-- Task Stats Below the Toggle Button -->
+              <div class="row mb-3 text-center">
+                <div class="col">
+                  <small>Task Completed</small>
+                  <h3 id="completed-count" class="fw-bold">{{ completed_tasks }}</h3>
+                </div>
+                <div class="col">
+                  <small>Task Incomplete</small>
+                  <h3 id="incomplete-count" class="fw-bold">{{ incomplete_tasks }}</h3>
+                </div>
+                <div class="col">
+                  <small>Total Task</small>
+                  <h3 id="total-count" class="fw-bold">{{ total_tasks }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Pending Orders Section -->
+            <div class="col-12">
+              <h4 class="mb-3 mt-3">Pending Orders</h4>
+            </div>
+
+            {% if pending_orders %}
+              {% for item in pending_orders %}
+                <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
+                    <div class="card shadow-sm h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="card-title font-weight-bold" style="font-size: 1.3rem;">Order ID: {{ item.order.order_id }}</h6>
+                                <p class="card-text text-muted mb-1" style="font-size: 0.9rem;">Customer: {{ item.order.order_name }}</p>
+                                <p class="card-text text-muted mb-1" style="font-size: 0.9rem;">Phone: {{ item.order.order_phonenumber }}</p>
+                                <p class="card-text text-muted mb-0" style="font-size: 0.85rem;">{{ item.order.ordered_time|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Ordered Dishes:</strong>
+                            <ul class="list-group list-group-flush">
+                                {% for dish in item.dishes %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <input type="checkbox" id="dish-{{ item.order.order_id }}-{{ forloop.counter }}"
+                                               {% if dish.prep_status == 'completed' %}checked{% endif %}
+                                               style="width: 20px; height: 20px;">
+                                        <label for="dish-{{ item.order.order_id }}-{{ forloop.counter }}" style="margin-left: 10px; font-size: 1.2rem;">{{ dish.dish_name }}</label>
+                                    </div>
+                                    <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #3a75d3; color: #fff;">Qty: {{ dish.dish_quantity }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong style="font-size: 1.2rem;">Total Bill: ₹{{ item.order.bill_value }}</strong>
+                        </div>
+
+                        <!-- Order Status Dropdown -->
+                        <div class="mt-2">
+                            <label for="status-{{ item.order.order_id }}" class="form-label"><strong>Order Status:</strong></label>
+                            <select class="form-select" id="status-{{ item.order.order_id }}"
+                                    onchange="updateOrderStatus('{{ item.order.order_id }}', this.value)">
+                                <option value="preparing" {% if item.order.order_status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                <option value="out_for_delivery" {% if item.order.order_status == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                                <option value="declined" {% if item.order.order_status == 'declined' %}selected{% endif %}>Declined</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="col-12">
+                <div class="alert alert-info">No pending orders assigned to you.</div>
+              </div>
+            {% endif %}
+
+            <!-- Completed Orders Section -->
+            <div class="col-12">
+              <h4 class="mb-3 mt-4">Completed Orders</h4>
+            </div>
+
+            {% if completed_orders %}
+              {% for item in completed_orders %}
+                <div class="col-xl-4 col-lg-6 col-md-12 mb-4">
+                    <div class="card shadow-sm h-100 p-3" style="opacity: 0.8;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="card-title font-weight-bold" style="font-size: 1.3rem;">Order ID: {{ item.order.order_id }}</h6>
+                                <p class="card-text text-muted mb-1" style="font-size: 0.9rem;">Customer: {{ item.order.order_name }}</p>
+                                <p class="card-text text-muted mb-1" style="font-size: 0.9rem;">Phone: {{ item.order.order_phonenumber }}</p>
+                                <p class="card-text text-muted mb-0" style="font-size: 0.85rem;">{{ item.order.ordered_time|date:"M d, Y H:i" }}</p>
+                            </div>
+                            <span class="badge bg-success rounded-pill px-3 py-2" style="font-size: 1.1rem;">Delivered</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Ordered Dishes:</strong>
+                            <ul class="list-group list-group-flush">
+                                {% for dish in item.dishes %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <input type="checkbox" checked disabled style="width: 20px; height: 20px;">
+                                        <label style="margin-left: 10px; font-size: 1.2rem;">{{ dish.dish_name }}</label>
+                                    </div>
+                                    <span class="badge rounded-pill" style="font-size: 0.9rem; background-color: #6c757d; color: #fff;">Qty: {{ dish.dish_quantity }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <strong style="font-size: 1.2rem;">Total Bill: ₹{{ item.order.bill_value }}</strong>
+                        </div>
+                    </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="col-12">
+                <div class="alert alert-secondary">No completed orders yet.</div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<style>
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+        font-size: 0.85rem;
+    }
+
+    .btn-primary:hover {
+        background-color: #007bff;
+        transform: translateY(-2px);
+    }
+
+    .position-absolute {
+        z-index: 1;
+        transform: translateY(10%);
+    }
+
+    .toggle-btn {
+        transition: background-color 0.3s, color 0.3s, border 0.3s;
+    }
+
+    .toggle-btn.active {
+        color: white;
+    }
+
+    .toggle-btn.active.btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    .toggle-btn.active.btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .toggle-btn:hover {
+        background-color: #f0f0f0;
+        border-color: #ccc;
+    }
+
+    .toggle-btn:focus {
+        box-shadow: none;
+    }
+
+    .form-select {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+
+<script>
+function toggleStatus(status) {
+    const onlineButton = document.getElementById('online-btn');
+    const offlineButton = document.getElementById('offline-btn');
+
+    // Update button styles
+    if (status === 'online') {
+        onlineButton.classList.add('active', 'btn-success');
+        onlineButton.classList.remove('btn-outline-success');
+        offlineButton.classList.add('btn-outline-danger');
+        offlineButton.classList.remove('active', 'btn-danger');
+    } else {
+        offlineButton.classList.add('active', 'btn-danger');
+        offlineButton.classList.remove('btn-outline-danger');
+        onlineButton.classList.add('btn-outline-success');
+        onlineButton.classList.remove('active', 'btn-success');
+    }
+
+    // Send AJAX request to update agent_status
+    fetch('{% url "agent" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ status: status })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Agent status updated successfully:', status);
+        } else {
+            console.error('Failed to update agent status:', data.error);
+            // Revert button state on failure
+            if (status === 'online') {
+                offlineButton.classList.add('active', 'btn-danger');
+                offlineButton.classList.remove('btn-outline-danger');
+                onlineButton.classList.add('btn-outline-success');
+                onlineButton.classList.remove('active', 'btn-success');
+            } else {
+                onlineButton.classList.add('active', 'btn-success');
+                onlineButton.classList.remove('btn-outline-success');
+                offlineButton.classList.add('btn-outline-danger');
+                offlineButton.classList.remove('active', 'btn-danger');
+            }
+            alert('Failed to update status: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error during AJAX request:', error);
+        // Revert button state on error
+        if (status === 'online') {
+            offlineButton.classList.add('active', 'btn-danger');
+            offlineButton.classList.remove('btn-outline-danger');
+            onlineButton.classList.add('btn-outline-success');
+            onlineButton.classList.remove('active', 'btn-success');
+        } else {
+            onlineButton.classList.add('active', 'btn-success');
+            onlineButton.classList.remove('btn-outline-success');
+            offlineButton.classList.add('btn-outline-danger');
+            offlineButton.classList.remove('active', 'btn-danger');
+        }
+        alert('Error updating status: ' + error.message);
+    });
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    // Send AJAX request to update order status
+    fetch('{% url "agent" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            new_status: newStatus
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Order status updated successfully');
+            // Show success message
+            alert('Order status updated successfully!');
+            // Reload page to reflect changes
+            location.reload();
+        } else {
+            console.error('Failed to update order status:', data.error);
+            alert('Failed to update order status: ' + data.error);
+            // Reload to reset dropdown
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error during AJAX request:', error);
+        alert('Error updating order status: ' + error.message);
+        // Reload to reset dropdown
+        location.reload();
+    });
+}
+
+// Initialize button state based on current agent_status
+document.addEventListener('DOMContentLoaded', function() {
+    const agentStatus = {% if request.user.userprofile.agent_status %}true{% else %}false{% endif %};
+    const initialStatus = agentStatus ? 'online' : 'offline';
+
+    const onlineButton = document.getElementById('online-btn');
+    const offlineButton = document.getElementById('offline-btn');
+
+    if (initialStatus === 'online') {
+        onlineButton.classList.add('active', 'btn-success');
+        onlineButton.classList.remove('btn-outline-success');
+        offlineButton.classList.add('btn-outline-danger');
+        offlineButton.classList.remove('active', 'btn-danger');
+    } else {
+        offlineButton.classList.add('active', 'btn-danger');
+        offlineButton.classList.remove('btn-outline-danger');
+        onlineButton.classList.add('btn-outline-success');
+        onlineButton.classList.remove('active', 'btn-success');
+    }
+});
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'assets/js/plugins/apexcharts.min.js' %}"></script>
+  <script src="{% static 'assets/js/pages/dashboard-default.js' %}"></script>
+{% endblock %}
