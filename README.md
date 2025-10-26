@@ -11,7 +11,7 @@ Agents receive assigned orders, manage order preparation and delivery status, an
 
 This project demonstrates the use of **Django for backend logic and APIs**, **React** for an interactive frontend, and **PostgreSQL** for structured data management. The system aims to simplify order handling, reduce manual delays, and ensure a transparent, efficient dining experience for all stakeholders.
 ## Workflow
-![image](git-images/workflow1.png)
+![image](git-images/workflow1.png)(Wait Loading..)
 
 ## 🚀 Key Features
 
