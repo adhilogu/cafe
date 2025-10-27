@@ -1,3 +1,5 @@
+import os
+
 from django.db.models import Count, Q, Sum
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -18,7 +20,11 @@ from django.utils import timezone
 import uuid
 from django.views.decorators.csrf import csrf_exempt
 
+from dotenv import load_dotenv
+load_dotenv()
 
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 ORDER_START = 100
 order_counter = ORDER_START
@@ -367,8 +373,6 @@ def checkout(request):
         return JsonResponse({"success": False, "error": "An unexpected error occurred."}, status=500)
 
 
-RAZORPAY_KEY_ID = "rzp_test_ntWJV3wwyFK3tP"
-RAZORPAY_KEY_SECRET = "jdbKxd6SAgin9aZq2UU5uKLx"
 
 
 @login_required

@@ -1,6 +1,6 @@
 .env
-.venv
-.idea
+.venv/
+.idea/
 build.sh
 docker-compose.yml
 Dockerfile
@@ -13,5 +13,5 @@ Procfile
 README_branching.md
 CHANGELOG.md
 .DS_Store
-nginx
-
+nginx/
+db.sqlite3
